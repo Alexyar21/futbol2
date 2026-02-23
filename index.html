@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sorteo de Partidos</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #00c853;
+    --green-dark: #007c2e;
+    --bg: #0a0f0d;
+    --surface: #111a14;
+    --border: #1e3325;
+    --text: #e8f5e9;
+    --muted: #5a7a62;
+    --women: #ff6b9d;
+    --men: #00c853;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    background-image: radial-gradient(ellipse at 20% 50%, #001a0a 0%, transparent 60%),
+                      radial-gradient(ellipse at 80% 20%, #001508 0%, transparent 50%);
+  }
+
+  header {
+    text-align: center;
+    padding: 3rem 1rem 1rem;
+    position: relative;
+  }
+
+  header::before {
+    content: '⚽';
+    font-size: 4rem;
+    display: block;
+    margin-bottom: 0.5rem;
+    animation: spin 8s linear infinite;
+  }
+
+  @keyframes spin {
+    from { transform: rotateY(0deg); }
+    to { transform: rotateY(360deg); }
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', cursive;
+    font-size: clamp(2.5rem, 7vw, 5rem);
+    letter-spacing: 0.1em;
+    background: linear-gradient(135deg, var(--green), #69f0ae);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 0.9rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-top: 0.3rem;
+  }
+
+  .main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1rem 4rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  @media (max-width: 720px) {
+    .main { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+
+  .panel.men::before { background: var(--men); }
+  .panel.women::before { background: var(--women); }
+
+  .panel-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.5rem;
+    letter-spacing: 0.1em;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .men .panel-title { color: var(--men); }
+  .women .panel-title { color: var(--women); }
+
+  .badge {
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.1em;
+  }
+
+  .men .badge { background: rgba(0,200,83,0.15); color: var(--men); border: 1px solid rgba(0,200,83,0.3); }
+  .women .badge { background: rgba(255,107,157,0.15); color: var(--women); border: 1px solid rgba(255,107,157,0.3); }
+
+  .team-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+    max-height: 380px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .team-list::-webkit-scrollbar { width: 4px; }
+  .team-list::-webkit-scrollbar-track { background: var(--bg); border-radius: 2px; }
+  .team-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .team-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    animation: fadeIn 0.3s ease both;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-8px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .team-num {
+    font-size: 0.7rem;
+    color: var(--muted);
+    width: 18px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .team-input {
+    flex: 1;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.45rem 0.75rem;
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.88rem;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+
+  .men .team-input:focus { border-color: var(--men); box-shadow: 0 0 0 2px rgba(0,200,83,0.1); }
+  .women .team-input:focus { border-color: var(--women); box-shadow: 0 0 0 2px rgba(255,107,157,0.1); }
+
+  .team-input::placeholder { color: var(--muted); font-size: 0.8rem; }
+
+  .del-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 2px 4px;
+    border-radius: 4px;
+    line-height: 1;
+    transition: color 0.2s;
+  }
+  .del-btn:hover { color: #ff5252; }
+
+  .add-btn {
+    width: 100%;
+    padding: 0.5rem;
+    background: rgba(255,255,255,0.04);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+
+  .men .add-btn:hover { border-color: var(--men); color: var(--men); }
+  .women .add-btn:hover { border-color: var(--women); color: var(--women); }
+
+  .actions {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .sort-btn {
+    padding: 1rem 3rem;
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.5rem;
+    letter-spacing: 0.15em;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(135deg, var(--green-dark), var(--green));
+    color: #000;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 20px rgba(0,200,83,0.3);
+  }
+
+  .sort-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,200,83,0.5);
+  }
+
+  .sort-btn:active { transform: translateY(0); }
+
+  .results {
+    grid-column: 1 / -1;
+    display: none;
+  }
+
+  .results.show { display: block; }
+
+  .results-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 2rem;
+    text-align: center;
+    letter-spacing: 0.1em;
+    color: var(--text);
+    margin-bottom: 1.5rem;
+  }
+
+  .category-section { margin-bottom: 2rem; }
+
+  .cat-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.3rem;
+    letter-spacing: 0.1em;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .cat-title.men-title { color: var(--men); border-color: rgba(0,200,83,0.3); }
+  .cat-title.women-title { color: var(--women); border-color: rgba(255,107,157,0.3); }
+
+  .matches-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0.8rem;
+  }
+
+  .match-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.9rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+  }
+
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.85); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .match-num {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.1rem;
+    min-width: 28px;
+    text-align: center;
+  }
+
+  .men .match-num, .match-card.men .match-num { color: var(--men); }
+  .match-card.women .match-num { color: var(--women); }
+
+  .vs {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 0.9rem;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .team-name {
+    font-size: 0.88rem;
+    font-weight: 600;
+    flex: 1;
+    text-align: center;
+  }
+
+  .bye-card {
+    background: rgba(255,255,255,0.02);
+    border-style: dashed;
+  }
+
+  .bye-tag {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .men-bye .bye-tag { background: rgba(0,200,83,0.1); color: var(--men); }
+  .women-bye .bye-tag { background: rgba(255,107,157,0.1); color: var(--women); }
+
+  .info-msg {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.82rem;
+    margin-top: 1rem;
+    padding: 0.6rem;
+    background: rgba(255,255,255,0.02);
+    border-radius: 8px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Sorteo de Partidos</h1>
+  <p class="subtitle">Torneo de Fútbol · Ronda Inicial</p>
+</header>
+
+<div class="main">
+
+  <!-- Hombres -->
+  <div class="panel men">
+    <div class="panel-title">
+      🏃 Hombres <span class="badge" id="men-count">0/13</span>
+    </div>
+    <ul class="team-list" id="men-list"></ul>
+    <button class="add-btn" onclick="addTeam('men')">+ Añadir equipo</button>
+  </div>
+
+  <!-- Mujeres -->
+  <div class="panel women">
+    <div class="panel-title">
+      🏃‍♀️ Mujeres <span class="badge" id="women-count">0/11</span>
+    </div>
+    <ul class="team-list" id="women-list"></ul>
+    <button class="add-btn" onclick="addTeam('women')">+ Añadir equipo</button>
+  </div>
+
+  <div class="actions">
+    <button class="sort-btn" onclick="sortear()">⚡ REALIZAR SORTEO</button>
+  </div>
+
+  <div class="results" id="results">
+    <div class="results-title">🏆 EMPAREJAMIENTOS</div>
+
+    <div class="category-section">
+      <div class="cat-title men-title">⚽ CATEGORÍA MASCULINA</div>
+      <div class="matches-grid" id="men-matches"></div>
+    </div>
+
+    <div class="category-section">
+      <div class="cat-title women-title">⚽ CATEGORÍA FEMENINA</div>
+      <div class="matches-grid" id="women-matches"></div>
+    </div>
+
+    <p class="info-msg" id="bye-info"></p>
+  </div>
+
+</div>
+
+<script>
+  const config = { men: 13, women: 12 };
+
+  function init() {
+    for (const cat of ['men', 'women']) {
+      for (let i = 0; i < config[cat]; i++) addTeam(cat, false);
+    }
+  }
+
+  function addTeam(cat, update = true) {
+    const list = document.getElementById(`${cat}-list`);
+    const li = document.createElement('li');
+    li.className = 'team-item';
+    const idx = list.children.length + 1;
+    li.innerHTML = `
+      <span class="team-num">${idx}</span>
+      <input class="team-input" type="text" placeholder="Equipo ${idx}" oninput="updateCount('${cat}')">
+      <button class="del-btn" onclick="removeTeam(this, '${cat}')">✕</button>
+    `;
+    li.style.animationDelay = `${(idx - 1) * 0.03}s`;
+    list.appendChild(li);
+    if (update) updateCount(cat);
+  }
+
+  function removeTeam(btn, cat) {
+    btn.closest('.team-item').remove();
+    renumber(cat);
+    updateCount(cat);
+  }
+
+  function renumber(cat) {
+    const items = document.querySelectorAll(`#${cat}-list .team-item`);
+    items.forEach((item, i) => {
+      item.querySelector('.team-num').textContent = i + 1;
+      item.querySelector('.team-input').placeholder = `Equipo ${i + 1}`;
+    });
+  }
+
+  function updateCount(cat) {
+    const inputs = document.querySelectorAll(`#${cat}-list .team-input`);
+    const filled = [...inputs].filter(i => i.value.trim()).length;
+    document.getElementById(`${cat}-count`).textContent = `${filled}/${inputs.length}`;
+  }
+
+  function getTeams(cat) {
+    return [...document.querySelectorAll(`#${cat}-list .team-input`)]
+      .map(i => i.value.trim())
+      .filter(Boolean);
+  }
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function renderMatches(containerId, teams, cat) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    const shuffled = shuffle(teams);
+    const byeTeam = shuffled.length % 2 !== 0 ? shuffled.pop() : null;
+    let matchNum = 1;
+
+    for (let i = 0; i < shuffled.length; i += 2) {
+      const card = document.createElement('div');
+      card.className = `match-card ${cat}`;
+      card.style.animationDelay = `${(matchNum - 1) * 0.05}s`;
+      card.innerHTML = `
+        <span class="match-num">#${matchNum++}</span>
+        <span class="team-name">${shuffled[i]}</span>
+        <span class="vs">VS</span>
+        <span class="team-name">${shuffled[i + 1]}</span>
+      `;
+      container.appendChild(card);
+    }
+
+    if (byeTeam) {
+      const byeCard = document.createElement('div');
+      byeCard.className = `match-card bye-card ${cat}-bye`;
+      byeCard.style.animationDelay = `${(matchNum - 1) * 0.05}s`;
+      byeCard.innerHTML = `
+        <span class="team-name" style="text-align:left">${byeTeam}</span>
+        <span class="bye-tag">BYE</span>
+      `;
+      container.appendChild(byeCard);
+    }
+
+    return byeTeam;
+  }
+
+  function sortear() {
+    const men = getTeams('men');
+    const women = getTeams('women');
+
+    if (men.length < 2 && women.length < 2) {
+      alert('Por favor ingresa al menos 2 equipos en alguna categoría.');
+      return;
+    }
+
+    const results = document.getElementById('results');
+    results.classList.remove('show');
+    void results.offsetWidth;
+
+    const byeM = renderMatches('men-matches', men, 'men');
+    const byeW = renderMatches('women-matches', women, 'women');
+
+    let info = [];
+    if (byeM) info.push(`🟢 ${byeM} descansa esta ronda (categoría masculina)`);
+    if (byeW) info.push(`🩷 ${byeW} descansa esta ronda (categoría femenina)`);
+    document.getElementById('bye-info').textContent = info.join('  ·  ');
+
+    results.classList.add('show');
+    results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  init();
+</script>
+</body>
+</html>
