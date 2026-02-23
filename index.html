@@ -3,509 +3,488 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sorteo de Partidos</title>
+<title>Torneo de Fútbol – 7 Semanas</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --green: #00c853;
-    --green-dark: #007c2e;
-    --bg: #0a0f0d;
-    --surface: #111a14;
-    --border: #1e3325;
-    --text: #e8f5e9;
-    --muted: #5a7a62;
-    --women: #ff6b9d;
-    --men: #00c853;
+    --green:#00c853; --green-dark:#007c2e;
+    --bg:#0a0f0d; --surface:#111a14; --surface2:#162019; --border:#1e3325;
+    --text:#e8f5e9; --muted:#5a7a62;
+    --women:#ff6b9d; --men:#00c853;
+    --sat:#f5a623; --sun:#00b4d8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 50%,#001a0a 0%,transparent 60%),
+    radial-gradient(ellipse at 80% 20%,#001508 0%,transparent 50%);}
+
+  header{text-align:center;padding:2.5rem 1rem 1rem}
+  header::before{content:'⚽';font-size:3.5rem;display:block;margin-bottom:.3rem;animation:spin 8s linear infinite}
+  @keyframes spin{from{transform:rotateY(0)}to{transform:rotateY(360deg)}}
+  h1{font-family:'Bebas Neue',cursive;font-size:clamp(2.2rem,6vw,4.5rem);letter-spacing:.1em;
+    background:linear-gradient(135deg,var(--green),#69f0ae);-webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;background-clip:text}
+  .subtitle{color:var(--muted);font-size:.85rem;letter-spacing:.2em;text-transform:uppercase;margin-top:.2rem}
+
+  .main{max-width:1150px;margin:0 auto;padding:2rem 1rem 4rem}
+
+  .date-row{background:var(--surface);border:1px solid var(--border);border-radius:16px;
+    padding:1.2rem 1.5rem;margin-bottom:1.5rem;display:flex;align-items:flex-end;gap:1.5rem;flex-wrap:wrap}
+  .date-row label{font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;
+    display:flex;flex-direction:column;gap:.4rem;flex:1;min-width:180px}
+  .date-row input[type=date]{background:rgba(255,255,255,.05);border:1px solid var(--border);
+    border-radius:8px;padding:.45rem .8rem;color:var(--text);font-family:'Barlow',sans-serif;font-size:.9rem;outline:none;
+    color-scheme:dark}
+  .date-row input[type=date]:focus{border-color:var(--green)}
+  .date-note{font-size:.75rem;color:var(--muted);align-self:center;flex:2;min-width:200px;line-height:1.5}
+
+  .setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem}
+  @media(max-width:700px){.setup-grid{grid-template-columns:1fr}}
+
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;
+    position:relative;overflow:hidden}
+  .panel::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+  .panel.men::before{background:var(--men)} .panel.women::before{background:var(--women)}
+  .panel-title{font-family:'Bebas Neue',cursive;font-size:1.4rem;letter-spacing:.1em;
+    margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+  .men .panel-title{color:var(--men)} .women .panel-title{color:var(--women)}
+  .badge{font-family:'Barlow',sans-serif;font-size:.68rem;font-weight:700;padding:2px 8px;
+    border-radius:20px;letter-spacing:.1em}
+  .men .badge{background:rgba(0,200,83,.15);color:var(--men);border:1px solid rgba(0,200,83,.3)}
+  .women .badge{background:rgba(255,107,157,.15);color:var(--women);border:1px solid rgba(255,107,157,.3)}
+
+  .team-list{list-style:none;display:flex;flex-direction:column;gap:.35rem;margin-bottom:1rem;
+    max-height:340px;overflow-y:auto;padding-right:4px}
+  .team-list::-webkit-scrollbar{width:4px}
+  .team-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+  .team-item{display:flex;align-items:center;gap:.4rem;animation:fadeIn .25s ease both}
+  @keyframes fadeIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+  .team-num{font-size:.68rem;color:var(--muted);width:18px;text-align:right;flex-shrink:0}
+  .team-input{flex:1;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;
+    padding:.4rem .7rem;color:var(--text);font-family:'Barlow',sans-serif;font-size:.85rem;outline:none;transition:border-color .2s}
+  .men .team-input:focus{border-color:var(--men)} .women .team-input:focus{border-color:var(--women)}
+  .team-input::placeholder{color:var(--muted);font-size:.78rem}
+  .del-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.9rem;
+    padding:2px 4px;border-radius:4px;transition:color .2s}
+  .del-btn:hover{color:#ff5252}
+  .add-btn{width:100%;padding:.45rem;background:rgba(255,255,255,.03);border:1px dashed var(--border);
+    border-radius:8px;color:var(--muted);cursor:pointer;font-family:'Barlow',sans-serif;font-size:.82rem;transition:all .2s}
+  .men .add-btn:hover{border-color:var(--men);color:var(--men)}
+  .women .add-btn:hover{border-color:var(--women);color:var(--women)}
+
+  .actions{display:flex;justify-content:center;margin:1.5rem 0}
+  .sort-btn{padding:.9rem 2.5rem;font-family:'Bebas Neue',cursive;font-size:1.4rem;letter-spacing:.15em;
+    border:none;border-radius:50px;background:linear-gradient(135deg,var(--green-dark),var(--green));
+    color:#000;cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 20px rgba(0,200,83,.3)}
+  .sort-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,200,83,.5)}
+
+  /* RESULTS */
+  .results{display:none} .results.show{display:block}
+  .results-header{text-align:center;margin-bottom:2rem;padding-bottom:1.2rem;border-bottom:1px solid var(--border)}
+  .results-title{font-family:'Bebas Neue',cursive;font-size:clamp(1.8rem,5vw,3rem);letter-spacing:.1em;
+    background:linear-gradient(135deg,var(--sat),var(--green),var(--sun));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .legend{display:flex;justify-content:center;gap:1.5rem;margin-top:.8rem;flex-wrap:wrap}
+  .legend-item{display:flex;align-items:center;gap:.4rem;font-size:.78rem;color:var(--muted)}
+  .legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+  .week-block{margin-bottom:3rem;animation:slideUp .4s ease both}
+  @keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+  .week-header{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;margin-bottom:1rem;
+    padding:.8rem 0;border-bottom:2px solid var(--border)}
+  .week-label{font-family:'Bebas Neue',cursive;font-size:1.6rem;letter-spacing:.15em;color:var(--text)}
+  .week-dates{font-size:.75rem;font-family:'Barlow',sans-serif;font-weight:600;color:var(--muted);
+    letter-spacing:.04em;border:1px solid var(--border);padding:3px 10px;border-radius:20px;text-transform:capitalize}
+
+  .day-section{margin-bottom:1.5rem}
+  .day-header{display:flex;align-items:center;gap:.7rem;margin-bottom:.75rem}
+  .day-pill{font-family:'Bebas Neue',cursive;font-size:1rem;letter-spacing:.12em;
+    padding:4px 14px;border-radius:20px}
+  .day-pill.sat{background:rgba(245,166,35,.15);color:var(--sat);border:1px solid rgba(245,166,35,.3)}
+  .day-pill.sun{background:rgba(0,180,216,.15);color:var(--sun);border:1px solid rgba(0,180,216,.3)}
+  .day-date{font-size:.82rem;color:var(--muted);font-weight:600;text-transform:capitalize}
+
+  .schedule{display:flex;flex-direction:column;gap:.5rem}
+
+  .slot-card{display:grid;grid-template-columns:80px 1fr;border-radius:12px;overflow:hidden;
+    border:1px solid var(--border);animation:popIn .3s ease both}
+  @keyframes popIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+
+  .slot-time{background:rgba(0,0,0,.35);display:flex;flex-direction:column;align-items:center;
+    justify-content:center;padding:.55rem .4rem;flex-shrink:0}
+  .slot-time .hora{font-family:'Bebas Neue',cursive;font-size:1.25rem;letter-spacing:.04em;color:var(--text);line-height:1}
+  .slot-time .ampm{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:2px}
+
+  .slot-match{display:flex;align-items:center;gap:.6rem;padding:.6rem 1rem;background:var(--surface2);flex:1;min-width:0}
+  .cat-tag{font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:10px;
+    letter-spacing:.08em;text-transform:uppercase;flex-shrink:0;white-space:nowrap}
+  .cat-tag.men{background:rgba(0,200,83,.12);color:var(--men);border:1px solid rgba(0,200,83,.25)}
+  .cat-tag.women{background:rgba(255,107,157,.12);color:var(--women);border:1px solid rgba(255,107,157,.25)}
+
+  .match-teams{display:flex;align-items:center;gap:.5rem;flex:1;min-width:0;flex-wrap:wrap}
+  .team-n{font-size:.88rem;font-weight:700;flex:1;text-align:center;min-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .vs-lbl{font-family:'Bebas Neue',cursive;font-size:.85rem;color:var(--muted);flex-shrink:0}
+
+  .bye-slot .slot-match{opacity:.45}
+  .bye-lbl{font-size:.62rem;font-weight:700;padding:2px 7px;border-radius:10px;
+    background:rgba(255,255,255,.04);color:var(--muted);border:1px solid var(--border);
+    letter-spacing:.1em;text-transform:uppercase;flex-shrink:0}
+
+  .summary-bar{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;
+    padding:.6rem 1rem;margin-top:.6rem;font-size:.76rem;color:var(--muted);text-align:center}
+
+  @media print{
+    body{background:#fff!important;color:#000!important}
+    .setup-grid,.date-row,.actions,.print-btn{display:none!important}
+    .slot-time{background:#ddd!important;-webkit-print-color-adjust:exact}
+    .slot-match{background:#f5f5f5!important;-webkit-print-color-adjust:exact}
+    .week-block{page-break-inside:avoid;margin-bottom:1.5rem}
+    .day-section{page-break-inside:avoid}
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Barlow', sans-serif;
-    min-height: 100vh;
-    background-image: radial-gradient(ellipse at 20% 50%, #001a0a 0%, transparent 60%),
-                      radial-gradient(ellipse at 80% 20%, #001508 0%, transparent 50%);
-  }
-
-  header {
-    text-align: center;
-    padding: 3rem 1rem 1rem;
-    position: relative;
-  }
-
-  header::before {
-    content: '⚽';
-    font-size: 4rem;
-    display: block;
-    margin-bottom: 0.5rem;
-    animation: spin 8s linear infinite;
-  }
-
-  @keyframes spin {
-    from { transform: rotateY(0deg); }
-    to { transform: rotateY(360deg); }
-  }
-
-  h1 {
-    font-family: 'Bebas Neue', cursive;
-    font-size: clamp(2.5rem, 7vw, 5rem);
-    letter-spacing: 0.1em;
-    background: linear-gradient(135deg, var(--green), #69f0ae);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .subtitle {
-    color: var(--muted);
-    font-size: 0.9rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    margin-top: 0.3rem;
-  }
-
-  .main {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 2rem 1rem 4rem;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-  }
-
-  @media (max-width: 720px) {
-    .main { grid-template-columns: 1fr; }
-  }
-
-  .panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 1.5rem;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .panel::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-  }
-
-  .panel.men::before { background: var(--men); }
-  .panel.women::before { background: var(--women); }
-
-  .panel-title {
-    font-family: 'Bebas Neue', cursive;
-    font-size: 1.5rem;
-    letter-spacing: 0.1em;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .men .panel-title { color: var(--men); }
-  .women .panel-title { color: var(--women); }
-
-  .badge {
-    font-family: 'Barlow', sans-serif;
-    font-size: 0.7rem;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 20px;
-    letter-spacing: 0.1em;
-  }
-
-  .men .badge { background: rgba(0,200,83,0.15); color: var(--men); border: 1px solid rgba(0,200,83,0.3); }
-  .women .badge { background: rgba(255,107,157,0.15); color: var(--women); border: 1px solid rgba(255,107,157,0.3); }
-
-  .team-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    margin-bottom: 1rem;
-    max-height: 380px;
-    overflow-y: auto;
-    padding-right: 4px;
-  }
-
-  .team-list::-webkit-scrollbar { width: 4px; }
-  .team-list::-webkit-scrollbar-track { background: var(--bg); border-radius: 2px; }
-  .team-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-  .team-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    animation: fadeIn 0.3s ease both;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateX(-8px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
-
-  .team-num {
-    font-size: 0.7rem;
-    color: var(--muted);
-    width: 18px;
-    text-align: right;
-    flex-shrink: 0;
-  }
-
-  .team-input {
-    flex: 1;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 0.45rem 0.75rem;
-    color: var(--text);
-    font-family: 'Barlow', sans-serif;
-    font-size: 0.88rem;
-    transition: border-color 0.2s;
-    outline: none;
-  }
-
-  .men .team-input:focus { border-color: var(--men); box-shadow: 0 0 0 2px rgba(0,200,83,0.1); }
-  .women .team-input:focus { border-color: var(--women); box-shadow: 0 0 0 2px rgba(255,107,157,0.1); }
-
-  .team-input::placeholder { color: var(--muted); font-size: 0.8rem; }
-
-  .del-btn {
-    background: none;
-    border: none;
-    color: var(--muted);
-    cursor: pointer;
-    font-size: 1rem;
-    padding: 2px 4px;
-    border-radius: 4px;
-    line-height: 1;
-    transition: color 0.2s;
-  }
-  .del-btn:hover { color: #ff5252; }
-
-  .add-btn {
-    width: 100%;
-    padding: 0.5rem;
-    background: rgba(255,255,255,0.04);
-    border: 1px dashed var(--border);
-    border-radius: 8px;
-    color: var(--muted);
-    cursor: pointer;
-    font-family: 'Barlow', sans-serif;
-    font-size: 0.85rem;
-    transition: all 0.2s;
-  }
-
-  .men .add-btn:hover { border-color: var(--men); color: var(--men); }
-  .women .add-btn:hover { border-color: var(--women); color: var(--women); }
-
-  .actions {
-    grid-column: 1 / -1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .sort-btn {
-    padding: 1rem 3rem;
-    font-family: 'Bebas Neue', cursive;
-    font-size: 1.5rem;
-    letter-spacing: 0.15em;
-    border: none;
-    border-radius: 50px;
-    background: linear-gradient(135deg, var(--green-dark), var(--green));
-    color: #000;
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-    box-shadow: 0 4px 20px rgba(0,200,83,0.3);
-  }
-
-  .sort-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(0,200,83,0.5);
-  }
-
-  .sort-btn:active { transform: translateY(0); }
-
-  .results {
-    grid-column: 1 / -1;
-    display: none;
-  }
-
-  .results.show { display: block; }
-
-  .results-title {
-    font-family: 'Bebas Neue', cursive;
-    font-size: 2rem;
-    text-align: center;
-    letter-spacing: 0.1em;
-    color: var(--text);
-    margin-bottom: 1.5rem;
-  }
-
-  .category-section { margin-bottom: 2rem; }
-
-  .cat-title {
-    font-family: 'Bebas Neue', cursive;
-    font-size: 1.3rem;
-    letter-spacing: 0.1em;
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .cat-title.men-title { color: var(--men); border-color: rgba(0,200,83,0.3); }
-  .cat-title.women-title { color: var(--women); border-color: rgba(255,107,157,0.3); }
-
-  .matches-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 0.8rem;
-  }
-
-  .match-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 0.9rem 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.7rem;
-    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
-  }
-
-  @keyframes popIn {
-    from { opacity: 0; transform: scale(0.85); }
-    to { opacity: 1; transform: scale(1); }
-  }
-
-  .match-num {
-    font-family: 'Bebas Neue', cursive;
-    font-size: 1.1rem;
-    min-width: 28px;
-    text-align: center;
-  }
-
-  .men .match-num, .match-card.men .match-num { color: var(--men); }
-  .match-card.women .match-num { color: var(--women); }
-
-  .vs {
-    font-family: 'Bebas Neue', cursive;
-    font-size: 0.9rem;
-    color: var(--muted);
-    flex-shrink: 0;
-  }
-
-  .team-name {
-    font-size: 0.88rem;
-    font-weight: 600;
-    flex: 1;
-    text-align: center;
-  }
-
-  .bye-card {
-    background: rgba(255,255,255,0.02);
-    border-style: dashed;
-  }
-
-  .bye-tag {
-    font-size: 0.7rem;
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
-  .men-bye .bye-tag { background: rgba(0,200,83,0.1); color: var(--men); }
-  .women-bye .bye-tag { background: rgba(255,107,157,0.1); color: var(--women); }
-
-  .info-msg {
-    text-align: center;
-    color: var(--muted);
-    font-size: 0.82rem;
-    margin-top: 1rem;
-    padding: 0.6rem;
-    background: rgba(255,255,255,0.02);
-    border-radius: 8px;
-  }
+  .print-btn{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--surface);
+    border:1px solid var(--border);border-radius:50px;padding:.55rem 1.2rem;
+    color:var(--muted);font-family:'Barlow',sans-serif;font-size:.82rem;
+    cursor:pointer;transition:all .2s;z-index:99;display:none}
+  .print-btn:hover{border-color:var(--green);color:var(--green)}
 </style>
 </head>
 <body>
 
 <header>
-  <h1>Sorteo de Partidos</h1>
-  <p class="subtitle">Torneo de Fútbol · Ronda Inicial</p>
+  <h1>Torneo de Fútbol</h1>
+  <p class="subtitle">Calendario · 7 Semanas · Sábado &amp; Domingo</p>
 </header>
 
 <div class="main">
 
-  <!-- Hombres -->
-  <div class="panel men">
-    <div class="panel-title">
-      🏃 Hombres <span class="badge" id="men-count">0/13</span>
-    </div>
-    <ul class="team-list" id="men-list"></ul>
-    <button class="add-btn" onclick="addTeam('men')">+ Añadir equipo</button>
+  <div class="date-row">
+    <label>
+      📅 Primer sábado del torneo
+      <input type="date" id="start-date">
+    </label>
+    <p class="date-note">
+      🟡 <strong>Sábado:</strong> Partidos de 12:00 PM · el último inicia a las 6:20 PM<br>
+      🔵 <strong>Domingo:</strong> Primer partido a las 7:20 AM · intervalos de 1h 30min<br>
+      Cada día habrá partidos de <strong>hombres y mujeres</strong>
+    </p>
   </div>
 
-  <!-- Mujeres -->
-  <div class="panel women">
-    <div class="panel-title">
-      🏃‍♀️ Mujeres <span class="badge" id="women-count">0/11</span>
+  <div class="setup-grid">
+    <div class="panel men">
+      <div class="panel-title">🏃 Hombres <span class="badge" id="men-count">0/13</span></div>
+      <ul class="team-list" id="men-list"></ul>
+      <button class="add-btn" onclick="addTeam('men')">+ Añadir equipo</button>
     </div>
-    <ul class="team-list" id="women-list"></ul>
-    <button class="add-btn" onclick="addTeam('women')">+ Añadir equipo</button>
+    <div class="panel women">
+      <div class="panel-title">🏃‍♀️ Mujeres <span class="badge" id="women-count">0/12</span></div>
+      <ul class="team-list" id="women-list"></ul>
+      <button class="add-btn" onclick="addTeam('women')">+ Añadir equipo</button>
+    </div>
   </div>
 
   <div class="actions">
-    <button class="sort-btn" onclick="sortear()">⚡ REALIZAR SORTEO</button>
+    <button class="sort-btn" onclick="sortear()">⚡ GENERAR CALENDARIO 7 SEMANAS</button>
   </div>
 
   <div class="results" id="results">
-    <div class="results-title">🏆 EMPAREJAMIENTOS</div>
-
-    <div class="category-section">
-      <div class="cat-title men-title">⚽ CATEGORÍA MASCULINA</div>
-      <div class="matches-grid" id="men-matches"></div>
+    <div class="results-header">
+      <div class="results-title">📅 CALENDARIO COMPLETO — 7 SEMANAS</div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--sat)"></div>Sábado · 12:00 PM – 6:20 PM</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--sun)"></div>Domingo · desde 7:20 AM</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--men)"></div>♂ Masculino</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--women)"></div>♀ Femenino</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--muted)"></div>BYE = Descansa</div>
+      </div>
     </div>
-
-    <div class="category-section">
-      <div class="cat-title women-title">⚽ CATEGORÍA FEMENINA</div>
-      <div class="matches-grid" id="women-matches"></div>
-    </div>
-
-    <p class="info-msg" id="bye-info"></p>
+    <div id="weeks-container"></div>
   </div>
 
 </div>
 
+<button class="print-btn" id="print-btn" onclick="window.print()">🖨️ Imprimir / PDF</button>
+
 <script>
-  const config = { men: 13, women: 12 };
+// ══════════════════════════════════════════════════════════
+//  SLOTS DE HORARIOS
+//  Sábado: 12:00 (720min), cada 90min, último = 18:20 (1100min)
+//  720 810 900 990 1080 1100  → 6 slots
+//  Domingo: 7:20 (440min), cada 90min
+//  440 530 620 710 800 890 980 → 7 slots
+// ══════════════════════════════════════════════════════════
+const SAT_SLOTS = [720, 810, 900, 990, 1080, 1100];
+const SUN_SLOTS = [440, 530, 620, 710, 800, 890, 980];
 
-  function init() {
-    for (const cat of ['men', 'women']) {
-      for (let i = 0; i < config[cat]; i++) addTeam(cat, false);
+function fmtTime(totalMins) {
+  const h = Math.floor(totalMins / 60);
+  const m = totalMins % 60;
+  const ampm = h < 12 ? 'AM' : 'PM';
+  const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  return { hora: `${h12}:${String(m).padStart(2,'0')}`, ampm };
+}
+
+function addDays(base, n) {
+  const d = new Date(base);
+  d.setDate(d.getDate() + n);
+  return d;
+}
+
+function fmtDateLong(d) {
+  return d.toLocaleDateString('es-ES', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+}
+
+function fmtDateShort(d) {
+  return d.toLocaleDateString('es-ES', {day:'numeric', month:'short'});
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+// ── Round-robin (Berger circle method) ──────────────────
+// Returns array of rounds; each round = array of {a, b} (b=-1 if BYE)
+function buildRoundRobin(teams) {
+  const t = [...teams];
+  const hasBye = t.length % 2 !== 0;
+  if (hasBye) t.push(null); // null = BYE
+  const n = t.length;
+  const rounds = [];
+  // Fix last element, rotate the rest
+  const circle = t.slice(0, n-1);
+  const fixed = t[n-1];
+
+  for (let r = 0; r < n-1; r++) {
+    const round = [];
+    const pairs = n/2;
+    for (let i = 0; i < pairs; i++) {
+      const home = i === 0 ? fixed : circle[i-1];
+      const away = circle[n-2-i];
+      if (home !== null && away !== null) {
+        round.push({a: home, b: away, isBye: false});
+      } else {
+        const real = home !== null ? home : away;
+        round.push({a: real, b: null, isBye: true});
+      }
     }
+    rounds.push(round);
+    // rotate circle
+    circle.unshift(circle.pop());
   }
+  return rounds;
+}
 
-  function addTeam(cat, update = true) {
-    const list = document.getElementById(`${cat}-list`);
-    const li = document.createElement('li');
-    li.className = 'team-item';
-    const idx = list.children.length + 1;
-    li.innerHTML = `
-      <span class="team-num">${idx}</span>
-      <input class="team-input" type="text" placeholder="Equipo ${idx}" oninput="updateCount('${cat}')">
-      <button class="del-btn" onclick="removeTeam(this, '${cat}')">✕</button>
-    `;
-    li.style.animationDelay = `${(idx - 1) * 0.03}s`;
-    list.appendChild(li);
-    if (update) updateCount(cat);
+// ── TEAM INPUT ───────────────────────────────────────────
+function init() {
+  const today = new Date();
+  const dow = today.getDay();
+  const daysToSat = dow === 6 ? 7 : (6 - dow + 7) % 7;
+  const nextSat = addDays(today, daysToSat || 7);
+  document.getElementById('start-date').value = nextSat.toISOString().split('T')[0];
+
+  for (const c of ['men','women']) {
+    const n = c === 'men' ? 13 : 12;
+    for (let i=0;i<n;i++) addTeam(c, false);
   }
+}
 
-  function removeTeam(btn, cat) {
-    btn.closest('.team-item').remove();
-    renumber(cat);
-    updateCount(cat);
+function addTeam(cat, upd=true) {
+  const list = document.getElementById(`${cat}-list`);
+  const idx = list.children.length + 1;
+  const li = document.createElement('li');
+  li.className = 'team-item';
+  li.style.animationDelay = `${(idx-1)*.03}s`;
+  li.innerHTML = `
+    <span class="team-num">${idx}</span>
+    <input class="team-input" type="text" placeholder="Equipo ${idx}" oninput="updateCount('${cat}')">
+    <button class="del-btn" onclick="removeTeam(this,'${cat}')">✕</button>`;
+  list.appendChild(li);
+  if(upd) updateCount(cat);
+}
+
+function removeTeam(btn, cat) {
+  btn.closest('.team-item').remove();
+  renumber(cat); updateCount(cat);
+}
+
+function renumber(cat) {
+  document.querySelectorAll(`#${cat}-list .team-item`).forEach((el,i)=>{
+    el.querySelector('.team-num').textContent = i+1;
+    el.querySelector('.team-input').placeholder = `Equipo ${i+1}`;
+  });
+}
+
+function updateCount(cat) {
+  const inp = document.querySelectorAll(`#${cat}-list .team-input`);
+  const filled = [...inp].filter(i=>i.value.trim()).length;
+  document.getElementById(`${cat}-count`).textContent = `${filled}/${inp.length}`;
+}
+
+function getTeams(cat) {
+  return [...document.querySelectorAll(`#${cat}-list .team-input`)]
+    .map((inp,i) => inp.value.trim() || `Equipo ${i+1}`);
+}
+
+// ── CARD BUILDER ─────────────────────────────────────────
+function makeSlotCard(mins, match, delay) {
+  const {hora, ampm} = fmtTime(mins);
+  const div = document.createElement('div');
+  div.className = `slot-card${match.isBye?' bye-slot':''}`;
+  div.style.animationDelay = `${delay}s`;
+  const tag = match.cat==='men' ? '<span class="cat-tag men">♂ Hombres</span>' : '<span class="cat-tag women">♀ Mujeres</span>';
+
+  if (match.isBye) {
+    div.innerHTML = `
+      <div class="slot-time"><span class="hora">${hora}</span><span class="ampm">${ampm}</span></div>
+      <div class="slot-match">${tag}
+        <div class="match-teams"><span class="team-n">${match.a}</span></div>
+        <span class="bye-lbl">DESCANSA</span>
+      </div>`;
+  } else {
+    div.innerHTML = `
+      <div class="slot-time"><span class="hora">${hora}</span><span class="ampm">${ampm}</span></div>
+      <div class="slot-match">${tag}
+        <div class="match-teams">
+          <span class="team-n">${match.a}</span>
+          <span class="vs-lbl">VS</span>
+          <span class="team-n">${match.b}</span>
+        </div>
+      </div>`;
   }
+  return div;
+}
 
-  function renumber(cat) {
-    const items = document.querySelectorAll(`#${cat}-list .team-item`);
-    items.forEach((item, i) => {
-      item.querySelector('.team-num').textContent = i + 1;
-      item.querySelector('.team-input').placeholder = `Equipo ${i + 1}`;
-    });
-  }
+// ── MAIN SORTER ──────────────────────────────────────────
+function sortear() {
+  const startVal = document.getElementById('start-date').value;
+  if (!startVal) { alert('Por favor selecciona la fecha del primer sábado.'); return; }
 
-  function updateCount(cat) {
-    const inputs = document.querySelectorAll(`#${cat}-list .team-input`);
-    const filled = [...inputs].filter(i => i.value.trim()).length;
-    document.getElementById(`${cat}-count`).textContent = `${filled}/${inputs.length}`;
-  }
+  const menTeams   = shuffle(getTeams('men'));
+  const womenTeams = shuffle(getTeams('women'));
 
-  function getTeams(cat) {
-    return [...document.querySelectorAll(`#${cat}-list .team-input`)]
-      .map(i => i.value.trim())
-      .filter(Boolean);
-  }
+  const menRounds   = buildRoundRobin(menTeams);
+  const womenRounds = buildRoundRobin(womenTeams);
 
-  function shuffle(arr) {
-    const a = [...arr];
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
+  const container = document.getElementById('weeks-container');
+  container.innerHTML = '';
+
+  // Parse start date carefully
+  const [sy, sm, sd] = startVal.split('-').map(Number);
+  const startDate = new Date(sy, sm-1, sd); // local date, no TZ issues
+
+  for (let w=0; w<7; w++) {
+    const satDate = addDays(startDate, w*7);
+    const sunDate = addDays(satDate, 1);
+
+    // Get this week's round (cycle if fewer rounds than weeks)
+    const mRound = menRounds[w % menRounds.length].map(m => ({...m, cat:'men'}));
+    const wRound = womenRounds[w % womenRounds.length].map(m => ({...m, cat:'women'}));
+
+    // Interleave men/women to guarantee each day has both genders
+    // Alternate: M W M W M W ...
+    const combined = [];
+    const maxLen = Math.max(mRound.length, wRound.length);
+    for (let i=0; i<maxLen; i++) {
+      if (i < mRound.length) combined.push(mRound[i]);
+      if (i < wRound.length) combined.push(wRound[i]);
     }
-    return a;
-  }
 
-  function renderMatches(containerId, teams, cat) {
-    const container = document.getElementById(containerId);
-    container.innerHTML = '';
-    const shuffled = shuffle(teams);
-    const byeTeam = shuffled.length % 2 !== 0 ? shuffled.pop() : null;
-    let matchNum = 1;
+    // Split combined list between Saturday and Sunday
+    // Goal: both days have ≥1 men AND ≥1 women match
+    // Split roughly in half but keep interleaved structure
+    const half = Math.ceil(combined.length / 2);
+    let satList = combined.slice(0, half);
+    let sunList = combined.slice(half);
 
-    for (let i = 0; i < shuffled.length; i += 2) {
-      const card = document.createElement('div');
-      card.className = `match-card ${cat}`;
-      card.style.animationDelay = `${(matchNum - 1) * 0.05}s`;
-      card.innerHTML = `
-        <span class="match-num">#${matchNum++}</span>
-        <span class="team-name">${shuffled[i]}</span>
-        <span class="vs">VS</span>
-        <span class="team-name">${shuffled[i + 1]}</span>
-      `;
-      container.appendChild(card);
+    // Safety: ensure each day has both genders
+    function ensureBoth(primary, secondary) {
+      const hasMen   = primary.some(m=>m.cat==='men'&&!m.isBye);
+      const hasWomen = primary.some(m=>m.cat==='women'&&!m.isBye);
+      if (!hasMen) {
+        const idx = secondary.findIndex(m=>m.cat==='men');
+        if(idx!==-1) primary.push(secondary.splice(idx,1)[0]);
+      }
+      if (!hasWomen) {
+        const idx = secondary.findIndex(m=>m.cat==='women');
+        if(idx!==-1) primary.push(secondary.splice(idx,1)[0]);
+      }
+    }
+    ensureBoth(satList, sunList);
+    ensureBoth(sunList, satList);
+
+    // ── Build week block ──
+    const block = document.createElement('div');
+    block.className = 'week-block';
+    block.style.animationDelay = `${w*.1}s`;
+    block.innerHTML = `
+      <div class="week-header">
+        <span class="week-label">🗓 SEMANA ${w+1}</span>
+        <span class="week-dates">${fmtDateShort(satDate)} &amp; ${fmtDateShort(sunDate)}</span>
+      </div>`;
+
+    // Saturday
+    if (satList.length) {
+      const sec = document.createElement('div');
+      sec.className = 'day-section';
+      sec.innerHTML = `<div class="day-header">
+        <span class="day-pill sat">⚡ Sábado</span>
+        <span class="day-date">${fmtDateLong(satDate)}</span>
+      </div>`;
+      const sched = document.createElement('div');
+      sched.className = 'schedule';
+      satList.forEach((match, i) => {
+        const slot = SAT_SLOTS[i % SAT_SLOTS.length];
+        sched.appendChild(makeSlotCard(slot, match, i*.06));
+      });
+      sec.appendChild(sched);
+
+      const mCnt = satList.filter(m=>m.cat==='men'&&!m.isBye).length;
+      const wCnt = satList.filter(m=>m.cat==='women'&&!m.isBye).length;
+      sec.insertAdjacentHTML('beforeend',
+        `<div class="summary-bar">⏱ 1h 30min por partido &nbsp;|&nbsp; ♂ ${mCnt} partido${mCnt!==1?'s':''} masculino${mCnt!==1?'s':''} &nbsp;·&nbsp; ♀ ${wCnt} partido${wCnt!==1?'s':''} femenino${wCnt!==1?'s':''}</div>`);
+      block.appendChild(sec);
     }
 
-    if (byeTeam) {
-      const byeCard = document.createElement('div');
-      byeCard.className = `match-card bye-card ${cat}-bye`;
-      byeCard.style.animationDelay = `${(matchNum - 1) * 0.05}s`;
-      byeCard.innerHTML = `
-        <span class="team-name" style="text-align:left">${byeTeam}</span>
-        <span class="bye-tag">BYE</span>
-      `;
-      container.appendChild(byeCard);
+    // Sunday
+    if (sunList.length) {
+      const sec = document.createElement('div');
+      sec.className = 'day-section';
+      sec.innerHTML = `<div class="day-header">
+        <span class="day-pill sun">☀️ Domingo</span>
+        <span class="day-date">${fmtDateLong(sunDate)}</span>
+      </div>`;
+      const sched = document.createElement('div');
+      sched.className = 'schedule';
+      sunList.forEach((match, i) => {
+        const slot = SUN_SLOTS[i % SUN_SLOTS.length];
+        sched.appendChild(makeSlotCard(slot, match, i*.06));
+      });
+      sec.appendChild(sched);
+
+      const mCnt = sunList.filter(m=>m.cat==='men'&&!m.isBye).length;
+      const wCnt = sunList.filter(m=>m.cat==='women'&&!m.isBye).length;
+      sec.insertAdjacentHTML('beforeend',
+        `<div class="summary-bar">⏱ 1h 30min por partido &nbsp;|&nbsp; ♂ ${mCnt} partido${mCnt!==1?'s':''} masculino${mCnt!==1?'s':''} &nbsp;·&nbsp; ♀ ${wCnt} partido${wCnt!==1?'s':''} femenino${wCnt!==1?'s':''}</div>`);
+      block.appendChild(sec);
     }
 
-    return byeTeam;
+    container.appendChild(block);
   }
 
-  function sortear() {
-    const men = getTeams('men');
-    const women = getTeams('women');
+  const results = document.getElementById('results');
+  results.classList.remove('show');
+  void results.offsetWidth;
+  results.classList.add('show');
+  document.getElementById('print-btn').style.display = 'block';
+  results.scrollIntoView({behavior:'smooth', block:'start'});
+}
 
-    if (men.length < 2 && women.length < 2) {
-      alert('Por favor ingresa al menos 2 equipos en alguna categoría.');
-      return;
-    }
-
-    const results = document.getElementById('results');
-    results.classList.remove('show');
-    void results.offsetWidth;
-
-    const byeM = renderMatches('men-matches', men, 'men');
-    const byeW = renderMatches('women-matches', women, 'women');
-
-    let info = [];
-    if (byeM) info.push(`🟢 ${byeM} descansa esta ronda (categoría masculina)`);
-    if (byeW) info.push(`🩷 ${byeW} descansa esta ronda (categoría femenina)`);
-    document.getElementById('bye-info').textContent = info.join('  ·  ');
-
-    results.classList.add('show');
-    results.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  init();
+init();
 </script>
 </body>
 </html>
